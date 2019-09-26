@@ -179,9 +179,9 @@ def kalman_update_velocity(z_k, H, R, A):
 
 # Storing values of previous invocations of kalman_estmiation, necessary to
 # calculate differences dx, dy, dz, dt and therefore velocities vx, vy, vz
-wc_xyz_prev = kc_xyz_prev = np.array([0,0,0])
+wc_xyz_prev = kc_xyz_prev = depth3d_xyz_prev = np.array([0,0,0])
 kd_z_prev = sim_z_prev = np.array([0])
-wc_t_prev = kc_t_prev = kd_t_prev = kup_t_prev = sim_t_prev = time.time()
+wc_t_prev = kc_t_prev = depth3d_t_prev = kd_t_prev = kup_t_prev = sim_t_prev = time.time()
 #sim_t_prev = np.array([time.time()])
 kup_txtytz = np.ones(3) * time.time()
 
@@ -230,6 +230,15 @@ def filter(sensor_data, method = 'steady'):
                     R_list.append(R_kc)
                     # define the rows in the H matrix that correspond to the given sensor
                     H_list.append(np.identity(3)) #only if we ignore velocity
+
+				# test 3D position estimation
+                elif (sensor.datatype == Datatype.KINECT_DEPTH_3D):
+                    # obtain the sensor's covariance matrix
+                    R_list.append(R_kc)
+                    # define the rows in the H matrix that correspond to the given sensor
+                    H_list.append(np.identity(3)) #only if we ignore velocity
+
+
                 elif (sensor.datatype == Datatype.KINECT_DEPTH):
                     # obtain the sensor's covariance matrix
                     R_list.append(R_kd)
@@ -285,24 +294,15 @@ def filter(sensor_data, method = 'steady'):
         #print(kalman_xyz)
         return kalman_xyz
     elif (method == 'velocity'):
-
-         #global measurements_prev
-    #if(len(measurements_prev) == 0):
-        # initialize measuerements_prev
-    #    measurements_prev = measurements
         global wc_xyz_prev, wc_t_prev, kc_xyz_prev, kc_t_prev, kd_z_prev
         global kd_t_prev, sim_z_prev, sim_t_prev, kup_txtytz
-        #print(sim_z_prev)
 
         # initialize measurement vector e.g. z_k = np.array([kc_x, kc_y, kc_z, kc_vx, kc_vy, kc_vz, kd_z, kd_vz])
         z_k_list = []
-
         # simple list of the covariance matrices of all sensors
         R_list = []
-
         # simple list of submatrices that make up the H matrix
         H_list = []
-
         # initialize A
         A = np.identity(6)
 
@@ -380,6 +380,37 @@ def filter(sensor_data, method = 'steady'):
                     R_list.append(R_kc_vel)
                     # define the rows in the H matrix that correspond to the given sensor
                     H_list.append(np.identity(6))
+
+				# test 3D depth (use R and H from Datatype.KINECT_ARUCO since it's the same data format)
+                elif (sensor.datatype == Datatype.KINECT_DEPTH_3D):
+                    global depth3d_xyz_prev
+				    # velocity calculation: (delta space)/(delta time)
+                    if (sensor.timestamp - kc_t_prev) != 0.:
+                        depth3d_vel = (sensor.data - depth3d_xyz_prev )/(sensor.timestamp - kc_t_prev)
+                    else:
+                        depth3d_vel = (sensor.data - depth3d_xyz_prev )/0.00001
+
+                    # fill measurement vector with measured coordinates and velocity
+                    z_k_list.append(sensor.data)
+                    z_k_list.append(depth3d_vel)
+
+                    # time between kalman updates
+                    now = time.time()
+
+                    # write delta t's in A
+                    A[0:3, 3:6] = np.identity(3) * (now - kup_txtytz)
+
+                    # store measurement for later velocity calculation
+                    depth3d_xyz_prev = sensor.data
+                    depth3d_t_prev = sensor.timestamp
+                    kup_txtytz = np.ones(3) * now
+                    # obtain the sensor's covariance matrix
+                    R_list.append(R_kc_vel)
+                    # define the rows in the H matrix that correspond to the given sensor
+                    H_list.append(np.identity(6))
+
+
+
                 elif (sensor.datatype == Datatype.KINECT_DEPTH):
                     # calculate velocity
                     z_delta = sensor.data - kd_z_prev

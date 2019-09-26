@@ -65,7 +65,7 @@ while True:
 		if not args.module_depth_disable:
 			results.append(
 				SensorData(
-					Datatype.KINECT_DEPTH,
+					Datatype.KINECT_DEPTH_3D,
 					depth.calc(kinect_data, args.module_depth_render),
 					kinect_time
 				)

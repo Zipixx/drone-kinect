@@ -1,5 +1,5 @@
 import cv2
-
+import numpy as np
 
 # side length of the used ArUco marker: 0.105 meters
 marker_length = 0.105
@@ -16,10 +16,9 @@ def calc(data, flip, render):
 	gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
 	param = cv2.aruco.DetectorParameters_create()
-	#dictio = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_250)
-	dictio = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_250)
+	dictio = cv2.aruco.Dictionary_get(cv2.aruco.DICT_4X4_250)
 	corners, ids, rejectedImgPoints = cv2.aruco.detectMarkers(gray, dictio, parameters=param)
-    
+
 	global marker_length
 	rvec, tvec, markerPoints = cv2.aruco.estimatePoseSingleMarkers(corners, marker_length, matrix_coefficients, distortion_coefficients)
 
@@ -29,12 +28,7 @@ def calc(data, flip, render):
 
 
 	if tvec is not None:
-		return tvec[0,0] #assuming there is only one marker in the image
+		return np.multiply(tvec[0,0], [1, -1, 1]) #assuming there is only one marker in the image
 	return None
 
-	
-	if len(corners) > 0:
-		#TODO calc marker distance and center
-		return corners[0]
-	return None
 
