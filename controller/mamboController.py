@@ -35,9 +35,7 @@ def init_controller(addr=None):
 		while x != chr(27):  # ESC
 
 			x = sys.stdin.read(1)[0]
-			# print("You pressed", x)
-			# print(type(x))
-			if x == 'f':  # if key 'q' is pressed
+			if x == 'f':
 				if mambo.is_landed():
 					mambo.ask_for_state_update()
 					print("taking off!")
@@ -94,7 +92,6 @@ def list_devices():
 	Search for available bluetooth devices until a Mambo is found
 	:return: Name and MAC address of found Mambo as tuple or None tuple if interrupted by user
 	"""
-	# all_devices = []
 	device = None
 	mambo_found = False
 	while not mambo_found:
@@ -103,7 +100,6 @@ def list_devices():
 		print("found %d devices" % len(nearby_devices))
 		for addr, name in nearby_devices:
 			print(" %s - %s" % (name, addr))
-			# all_devices.append(tuple([name, addr]))
 			if "Mambo" in name:
 				print("Mambo found")
 				mambo_found = True
@@ -115,39 +111,7 @@ def list_devices():
 		return tuple([None, None])
 
 
-	# print("found %d devices" % len(nearby_devices))
-	# print("devices:", nearby_devices)
-
-	# for name, addr in nearby_devices:
-	# 	print(" %s - %s" % (addr, name))
-
 name, addr = list_devices()
 print('%s, %s'%(name, addr))
 init_controller(addr)
 
-
-"""
-    print("Flying direct: going forward (positive pitch)")
-    mambo.fly_direct(roll=0, pitch=50, yaw=0, vertical_movement=0, duration=1)
-
-    print("Showing turning (in place) using turn_degrees")
-    mambo.turn_degrees(90)
-    mambo.smart_sleep(2)
-    mambo.turn_degrees(-90)
-    mambo.smart_sleep(2)
-
-    print("Flying direct: yaw")
-    mambo.fly_direct(roll=0, pitch=0, yaw=50, vertical_movement=0, duration=1)
-
-    print("Flying direct: going backwards (negative pitch)")
-    mambo.fly_direct(roll=0, pitch=-50, yaw=0, vertical_movement=0, duration=0.5)
-
-    print("Flying direct: roll")
-    mambo.fly_direct(roll=50, pitch=0, yaw=0, vertical_movement=0, duration=1)
-
-    print("Flying direct: going up")
-    mambo.fly_direct(roll=0, pitch=0, yaw=0, vertical_movement=50, duration=1)
-
-    print("Flying direct: going around in a circle (yes you can mix roll, pitch, yaw in one command!)")
-    mambo.fly_direct(roll=25, pitch=0, yaw=50, vertical_movement=0, duration=3)
-"""
