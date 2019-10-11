@@ -53,7 +53,7 @@ for fname in images:
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1],None,None)
 
 # ---------- Saving the calibration -----------------
-cv_file = cv2.FileStorage("calib_images/MyMBP13Late2015Distortion.yaml", cv2.FILE_STORAGE_WRITE)
+cv_file = cv2.FileStorage("kinect_distortion.yaml", cv2.FILE_STORAGE_WRITE)
 cv_file.write("camera_matrix", mtx)
 cv_file.write("dist_coeff", dist)
 # note you *release* you don't close() a FileStorage object

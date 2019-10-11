@@ -32,7 +32,7 @@ Q_vel[0:3, 0:3] = Q
 Q_vel[3:6, 3:6] = np.array([[0.05**2, 0., 0.],
                             [0., 0.05**2, 0.],
                             [0., 0., 0.05**2]])
-
+Q_vel *= 1
 #This Q lead to the kalman gain sabilizing at I*0.83. A lower kalman gain
 #could be better due to the bad aruco localization. Parameter tuning:
 Q = Q*0.3
@@ -71,11 +71,15 @@ R_wc = np.array([[0.05**2, 0., 0.],
 R_kc = np.array([[0.06**2, 0., 0.],
               [0., 0.6**2, 0.],
               [0., 0., 0.06**2]])
+R_depth3d = 2* np.array([[0.06**2, 0., 0.],
+              [0., 0.6**2, 0.],
+              [0., 0., 0.06**2]])
 R_kd = np.array([0.08**2])
 R_sim = np.array([0.08**2])
 
 # point sensors extended by indirect velocity measurement
 R_wc_vel = np.zeros((6, 6), float)
+R_depth3d_vel = np.zeros((6, 6), float)
 R_wc_vel[0:3, 0:3] = R_wc
 R_wc_vel[3:6, 3:6] = np.array([[0.005**2, 0., 0.],
                             [0., 0.005**2, 0.],
@@ -83,9 +87,15 @@ R_wc_vel[3:6, 3:6] = np.array([[0.005**2, 0., 0.],
 
 R_kc_vel = np.zeros((6, 6), float)
 R_kc_vel[0:3, 0:3] = R_kc
-R_kc_vel[3:6, 3:6] = np.array([[0.005**2, 0., 0.],
+R_kc_vel[3:6, 3:6] = 0.5 * np.array([[0.005**2, 0., 0.],
                             [0., 0.005**2, 0.],
                             [0., 0., 0.005**2]])
+
+R_depth3d_vel[0:3, 0:3] = R_depth3d
+R_depth3d_vel[3:6, 3:6] = np.array([[0.005**2, 0., 0.],
+                            [0., 0.005**2, 0.],
+                            [0., 0., 0.005**2]])
+R_depth3d_vel *= 1
 
 R_kd_vel = np.diag([R_kd[0], 0.005**2])
 
@@ -234,7 +244,7 @@ def filter(sensor_data, method = 'steady'):
 				# test 3D position estimation
                 elif (sensor.datatype == Datatype.KINECT_DEPTH_3D):
                     # obtain the sensor's covariance matrix
-                    R_list.append(R_kc)
+                    R_list.append(R_depth3d)
                     # define the rows in the H matrix that correspond to the given sensor
                     H_list.append(np.identity(3)) #only if we ignore velocity
 
@@ -295,7 +305,7 @@ def filter(sensor_data, method = 'steady'):
         return kalman_xyz
     elif (method == 'velocity'):
         global wc_xyz_prev, wc_t_prev, kc_xyz_prev, kc_t_prev, kd_z_prev
-        global kd_t_prev, sim_z_prev, sim_t_prev, kup_txtytz
+        global kd_t_prev, depth3d_t_prev, sim_z_prev, sim_t_prev, kup_txtytz
 
         # initialize measurement vector e.g. z_k = np.array([kc_x, kc_y, kc_z, kc_vx, kc_vy, kc_vz, kd_z, kd_vz])
         z_k_list = []
@@ -385,8 +395,8 @@ def filter(sensor_data, method = 'steady'):
                 elif (sensor.datatype == Datatype.KINECT_DEPTH_3D):
                     global depth3d_xyz_prev
 				    # velocity calculation: (delta space)/(delta time)
-                    if (sensor.timestamp - kc_t_prev) != 0.:
-                        depth3d_vel = (sensor.data - depth3d_xyz_prev )/(sensor.timestamp - kc_t_prev)
+                    if (sensor.timestamp - depth3d_t_prev) != 0.:
+                        depth3d_vel = (sensor.data - depth3d_xyz_prev )/(sensor.timestamp - depth3d_t_prev)
                     else:
                         depth3d_vel = (sensor.data - depth3d_xyz_prev )/0.00001
 
@@ -405,7 +415,7 @@ def filter(sensor_data, method = 'steady'):
                     depth3d_t_prev = sensor.timestamp
                     kup_txtytz = np.ones(3) * now
                     # obtain the sensor's covariance matrix
-                    R_list.append(R_kc_vel)
+                    R_list.append(R_depth3d_vel)
                     # define the rows in the H matrix that correspond to the given sensor
                     H_list.append(np.identity(6))
 

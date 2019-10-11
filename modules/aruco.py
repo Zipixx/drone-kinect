@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # side length of the used ArUco marker: 0.105 meters
-marker_length = 0.105
+marker_length = 0.08
 
 cam_config_file = cv2.FileStorage("test/camera_calibration/MBP13Late2015Distortion.yaml", cv2.FILE_STORAGE_READ)
 matrix_coefficients = cam_config_file.getNode("camera_matrix").mat()
@@ -28,7 +28,7 @@ def calc(data, flip, render):
 
 
 	if tvec is not None:
-		return np.multiply(tvec[0,0], [1, -1, 1]) #assuming there is only one marker in the image
+		return np.multiply(tvec[0,0], [-1, -0.5, 1]) #assuming there is only one marker in the image
 	return None
 
 

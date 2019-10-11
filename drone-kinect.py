@@ -47,6 +47,7 @@ if args.sensor_webcam_enable:
 
 if args.live_plot_enable:
 	from tools import liveplot
+	live_plot_init = time.time()
 
 while True:
 	results = []
@@ -88,19 +89,20 @@ while True:
 	print('kalman result: %s' % ( str(filtered_results) ) )
 
 	if args.live_plot_enable:
-		plot_points = []
-		for i in results:
-			if i.data is None:
-				continue
-			if i.datatype == Datatype.KINECT_DEPTH:
-				plot_points.append(np.array([0, 0, i.data[0]]))
-			else:
-				plot_points.append(i.data)
+		# setup time to move render windows to different monitors etc
+		if time.time() - live_plot_init > 0.0:
+			plot_points = []
+			for i in results:
+				if i.data is None:
+					continue
+				if i.datatype == Datatype.KINECT_DEPTH:
+					plot_points.append(np.array([0, 0, i.data[0]]))
+				else:
+					plot_points.append(i.data)
 
-		plot_points.append(filtered_results)
-		coords = np.vstack(plot_points)
-		colors = ['r', 'b', 'g']
-		liveplot.update_3dplot(np.vstack(plot_points), colors)
+			plot_points.append(filtered_results)
+			colors = ['r', 'b', 'g']
+			liveplot.update_3dplot(np.vstack(plot_points), colors)
 
 
 	# frame progression for rendered modules

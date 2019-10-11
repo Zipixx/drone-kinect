@@ -43,5 +43,5 @@ def calc(data, render):
 	if z < min_depth or z > max_depth:
 		return None
 	# return depth at pixel in meters (x,y dimensions flipped as usual)
-	return np.array([y/1000.0, -1.0*x/1000.0, z/1000.0])#data.depth[x_mean, y_mean] / 1000.0])
+	return np.array([y/1000.0, -1.0*x/1000.0, z/1000.0])
 

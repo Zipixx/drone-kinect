@@ -43,10 +43,10 @@ else:
     scat = ax.scatter([], [], [], cmap = "blabla", marker='o')
     scat.set_cmap(cmap)
     
-    scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c='red', marker = 'o')
-    scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c='orange', marker = 'o')
-    scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c='blue', marker = 'o')
-    ax.legend([scatter1_proxy, scatter2_proxy, scatter3_proxy], ['Kalman', 'Camera', 'Depth Sensor'], numpoints = 1)
+    scatter1_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c='#bb0000', marker = 'o')
+    scatter2_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c='#ee5555', marker = 'o')
+    scatter3_proxy = matplotlib.lines.Line2D([0],[0], linestyle="none", c='#7777ff', marker = 'o')
+    ax.legend([scatter1_proxy, scatter2_proxy, scatter3_proxy], ['Depth Sensor', 'Camera', 'Kalman'], numpoints = 1)
     
     
 def update_2dplot(coords):
