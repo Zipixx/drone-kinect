@@ -12,3 +12,7 @@ This project uses the RGB camera for ArUco tracking as well as the depth sensor 
 * libfreenect2
 * boost_python
 * boost_numpy
+
+## Build
+Compile the libfreenect2 python wrapper by executing the build script `./libfreenect2/build.sh`.
+
